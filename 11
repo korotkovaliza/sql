@@ -1,0 +1,26 @@
+/*1*/ 
+select name 
+from Рейсы left join Пилоты on Рейсы.second_pilot_id = Пилоты.pilot_id 
+where MONTH(flight_dt) = 8 and YEAR(flight_dt) = YEAR(GETDATE()) 
+and destination = 'Шереметьево' 
+
+/*2*/ 
+select (select name from Пилоты where A.pilot_id = Пилоты.pilot_id) as name 
+from (select pilot_id 
+from Рейсы left join Самолеты on Рейсы.plane_id = Самолеты.plane_id 
+left join Пилоты on Рейсы.first_pilot_id = Пилоты.pilot_id 
+where cargo_flg = 1 and age > 45 
+union all 
+select pilot_id 
+from Рейсы left join Самолеты on Рейсы.plane_id = Самолеты.plane_id 
+left join Пилоты on Рейсы.second_pilot_id = Пилоты.pilot_id
+where cargo_flg = 1 and age > 45) as A 
+group by pilot_id 
+having COUNT(pilot_id) > 30 
+
+/*3*/ 
+select top 10 (select name from Пилоты where Пилоты.pilot_id = Рейсы.first_pilot_id) as name 
+from Рейсы 
+where YEAR(flight_dt) = YEAR(GETDATE()) 
+group by first_pilot_id 
+order by SUM(quantity) desc
